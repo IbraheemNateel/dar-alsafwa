@@ -1,0 +1,209 @@
+// دار صفوة - المكونات المشتركة
+// Dar Safwa - Shared Components
+
+// الأزرار
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+
+  &.btn-primary {
+    background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
+    color: white;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+  }
+
+  &.btn-success {
+    background: linear-gradient(135deg, #27AE60 0%, #229954 100%);
+    color: white;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    }
+  }
+
+  &.btn-danger {
+    background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+    color: white;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    }
+  }
+
+  &.btn-outline {
+    background: transparent;
+    border: 2px solid #3498DB;
+    color: #3498DB;
+
+    &:hover {
+      background: #3498DB;
+      color: white;
+    }
+  }
+
+  &.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+// الجداول
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+
+  th, td {
+    padding: 1rem;
+    text-align: right;
+    border-bottom: 1px solid #ECF0F1;
+  }
+
+  th {
+    background: #F8F9FA;
+    font-weight: 600;
+    color: #2C3E50;
+    font-size: 0.9rem;
+  }
+
+  tbody tr {
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #F8F9FA;
+    }
+  }
+
+  .actions-cell {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+}
+
+// التقييمات
+.rating {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: white;
+
+  &.rating-5 { background: #27AE60; }
+  &.rating-4 { background: #3498DB; }
+  &.rating-3 { background: #F39C12; }
+  &.rating-2 { background: #E67E22; }
+  &.rating-1 { background: #E74C3C; }
+  &.rating-0 { background: #95A5A6; }
+}
+
+// التنبيهات
+.alert {
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+
+  &.alert-success {
+    background: #D5F4E6;
+    color: #27AE60;
+    border: 1px solid #27AE60;
+  }
+
+  &.alert-danger {
+    background: #FADBD8;
+    color: #E74C3C;
+    border: 1px solid #E74C3C;
+  }
+
+  &.alert-warning {
+    background: #FEF9E7;
+    color: #F39C12;
+    border: 1px solid #F39C12;
+  }
+
+  &.alert-info {
+    background: #EBF5FB;
+    color: #3498DB;
+    border: 1px solid #3498DB;
+  }
+}
+
+// النماذج
+.form-group {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2C3E50;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #ECF0F1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #3498DB;
+    }
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+}
+
+// البطاقات
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+// البادج
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+
+  &.badge-success { background: #27AE60; }
+  &.badge-danger { background: #E74C3C; }
+  &.badge-warning { background: #F39C12; }
+  &.badge-info { background: #3498DB; }
+  &.badge-secondary { background: #95A5A6; }
+}

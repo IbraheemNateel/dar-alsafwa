@@ -1,0 +1,12 @@
+{
+  "name": "dar-safwa",
+  "version": "1.0.0",
+  "description": "نظام إدارة حلقة تحفيظ القرآن - دار صفوة",
+  "scripts": {
+    "build:css": "sass assets/scss/main.scss assets/css/main.css",
+    "watch:css": "sass --watch assets/scss:assets/css"
+  },
+  "devDependencies": {
+    "sass": "^1.69.0"
+  }
+}

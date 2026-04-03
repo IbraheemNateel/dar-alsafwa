@@ -1,0 +1,48 @@
+// دار صفوة - أنماط الصفحات
+// Dar Safwa - Page-specific Styles
+
+// صفحة الطالب
+.student-info {
+  margin-bottom: 2rem;
+}
+
+.followup-section {
+  margin-top: 2rem;
+}
+
+// صفحة المتابعة اليومية
+.followup-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+// صفحة الترتيب
+.ranking-table {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+// صفحة الإنذارات
+.warning-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  border-right: 4px solid #F39C12;
+}
+
+// صفحة تسجيل الطالب
+.registration-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+}

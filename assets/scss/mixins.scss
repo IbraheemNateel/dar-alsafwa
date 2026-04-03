@@ -1,0 +1,73 @@
+// دار صفوة - Mixins
+// Dar Safwa - SCSS Mixins
+
+@use 'variables' as *;
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin transition($property: all, $duration: $transition-normal) {
+  transition: $property $duration;
+}
+
+@mixin card-style {
+  background: $color-bg-card;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  border: 1px solid rgba(13, 92, 61, 0.08);
+}
+
+@mixin button-base {
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $border-radius-md;
+  font-family: $font-primary;
+  font-weight: 600;
+  cursor: pointer;
+  @include transition(all);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == xs {
+    @media (max-width: $breakpoint-xs) { @content; }
+  } @else if $breakpoint == sm {
+    @media (max-width: $breakpoint-sm) { @content; }
+  } @else if $breakpoint == md {
+    @media (max-width: $breakpoint-md) { @content; }
+  } @else if $breakpoint == lg {
+    @media (max-width: $breakpoint-lg) { @content; }
+  } @else if $breakpoint == xl {
+    @media (max-width: $breakpoint-xl) { @content; }
+  }
+}
+
+@mixin fade-in-up($delay: 0s) {
+  animation: fadeInUp 0.5s ease forwards;
+  animation-delay: $delay;
+  opacity: 0;
+}
+
+@mixin scale-hover {
+  @include transition(transform);
+  &:hover {
+    transform: scale(1.02);
+  }
+}

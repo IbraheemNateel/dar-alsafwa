@@ -1,0 +1,8 @@
+{
+    "name": "dar-safwa/quran-circle",
+    "description": "نظام إدارة حلقة تحفيظ القرآن",
+    "require": {
+        "php": ">=7.4",
+        "phpoffice/phpspreadsheet": "^1.29"
+    }
+}
