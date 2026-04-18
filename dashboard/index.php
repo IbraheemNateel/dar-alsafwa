@@ -144,17 +144,25 @@ require_once __DIR__ . '/../includes/header.php';
             <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                 <form method="POST" action="finalize-absences.php" onsubmit="return confirm('هل أنت متأكد من إنهاء يوم التسميع؟ سيتم اعتبار الـ <?= $absent_today ?> طلاب المتبقين غائبين وإرسال إشعارات لهم.');">
                     <button type="submit" style="background: #e53e3e; color: white; border: none; padding: 0.8rem 1.75rem; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 10px rgba(229, 62, 62, 0.3); transition: all 0.2s;">
-                        🔒 إنهاء اليوم واعتماد الغياب
+                        🔒 إنهاء يوم التسميع واعتماد الغياب
                     </button>
                 </form>
-                <button onclick="document.getElementById('broadcastModal').style.display='flex'" style="background: #3182ce; color: white; border: none; padding: 0.8rem 1.75rem; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 10px rgba(49, 130, 206, 0.3); transition: all 0.2s;">
-                    📢 إشعار عام / درس جماعي
+                <button onclick="document.getElementById('broadcastModal').style.display='flex'" style="background: #3182ce; color: white; border: none; padding: 0.8rem 1.75rem; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 10px rgba(49, 130, 206, 0.3); transition: all 0.2s;" title="إرسال رسالة وإغلاق اليوم لتجنب تسجيل غياب">
+                    🎓 درس جماعي (الكل حاضر)
+                </button>
+                <button onclick="document.getElementById('generalBroadcastModal').style.display='flex'" style="background: #805ad5; color: white; border: none; padding: 0.8rem 1.75rem; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 10px rgba(128, 90, 213, 0.3); transition: all 0.2s;" title="إرسال رسالة عادية للكل بشكل مستقل عن الغياب">
+                    ✉️ رسالة جماعية للكل
                 </button>
             </div>
         <?php else: ?>
-            <button disabled style="background: #e2e8f0; color: #a0aec0; border: none; padding: 0.8rem 1.75rem; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: not-allowed;">
-                🔒 اليوم مغلق
-            </button>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button disabled style="background: #e2e8f0; color: #a0aec0; border: none; padding: 0.8rem 1.75rem; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: not-allowed;">
+                    🔒 اليوم مغلق (تم الاعتماد)
+                </button>
+                <button onclick="document.getElementById('generalBroadcastModal').style.display='flex'" style="background: #805ad5; color: white; border: none; padding: 0.8rem 1.75rem; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 10px rgba(128, 90, 213, 0.3); transition: all 0.2s;">
+                    ✉️ رسالة جماعية للكل
+                </button>
+            </div>
         <?php endif; ?>
     </div>
 
@@ -296,6 +304,38 @@ require_once __DIR__ . '/../includes/header.php';
             <div style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #edf2f7; display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <button type="button" onclick="document.getElementById('broadcastModal').style.display='none'" style="background: #edf2f7; color: #4a5568; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.95rem;">إلغاء</button>
                 <button type="submit" style="background: #3182ce; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem; box-shadow: 0 2px 6px rgba(49,130,206,0.3);">📤 إرسال للجميع</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- نافذة إرسال إشعار عام بدون تأثير على الغياب -->
+<div id="generalBroadcastModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px);">
+    <div style="background: white; border-radius: 16px; width: 100%; max-width: 520px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; animation: fadeInUp 0.3s ease;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #6b46c1, #805ad5);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span style="font-size: 1.5rem;">✉️</span>
+                <h3 style="margin: 0; color: white; font-size: 1.15rem; font-weight: 700;">إرسال رسالة جماعية</h3>
+            </div>
+            <button onclick="document.getElementById('generalBroadcastModal').style.display='none'" style="background: none; border: none; font-size: 1.75rem; color: rgba(255,255,255,0.8); cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+        <form method="POST" action="general-broadcast-message.php" onsubmit="return confirm('هذا الزر يرسل إشعار لجميع الطلبة ولا يقوم بالتأثير على قوائم الغياب اليومي أبداً. هل أنت متأكد؟');">
+            <div style="padding: 1.5rem;">
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="display: block; font-size: 0.95rem; color: #2d3748; font-weight: 700; margin-bottom: 0.5rem;">عنوان الإشعار</label>
+                    <input type="text" name="broadcast_title" placeholder="مثال: تنبيه بخصوص موعد الدوام غداً" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 1rem; font-family: inherit; outline: none; box-sizing: border-box; transition: border 0.2s;" onfocus="this.style.borderColor='#805ad5'" onblur="this.style.borderColor='#cbd5e0'">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.95rem; color: #2d3748; font-weight: 700; margin-bottom: 0.5rem;">نص الرسالة <span style="color: #e53e3e;">*</span></label>
+                    <textarea name="broadcast_message" rows="5" required placeholder="اكتب الرسالة التي تريد إيصالها لجميع الطلبة وأولياء الأمور..." style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 1rem; font-family: inherit; outline: none; resize: vertical; box-sizing: border-box; transition: border 0.2s;" onfocus="this.style.borderColor='#805ad5'" onblur="this.style.borderColor='#cbd5e0'"></textarea>
+                </div>
+                <div style="background: #faf5ff; border: 1px solid #e9d8fd; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; color: #553c9a; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>💡</span> ستصل الرسالة للجميع، ومع ذلك سيظل غياب الطلاب الغائبين لهذا اليوم محفوظاً ولن يتدخل به.
+                </div>
+            </div>
+            <div style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #edf2f7; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" onclick="document.getElementById('generalBroadcastModal').style.display='none'" style="background: #edf2f7; color: #4a5568; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.95rem;">إلغاء</button>
+                <button type="submit" style="background: #805ad5; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem; box-shadow: 0 2px 6px rgba(128,90,213,0.3);">📤 إرسال للكل</button>
             </div>
         </form>
     </div>

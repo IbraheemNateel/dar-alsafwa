@@ -269,6 +269,177 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $foundStudent) {
         <p>أدخل اسم الطالب أو رقم هويته في مربع البحث أعلاه</p>
     </div>
     <?php endif; ?>
+    <!-- Offline Hidden Form Template -->
+    <div id="offlineFormContainer" style="display: none;">
+        <div class="followup-entry-page">
+            <div class="student-search-result">
+                <p class="found-student-name" id="offlineStudentName">اسم الطالب</p>
+                <span class="badge badge-warning" style="background:#f39c12; color:white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">وضع الاوفلاين</span>
+            </div>
+
+            <div class="followup-form-section form-card">
+                <form id="offlineFollowupForm" method="POST" action="">
+                    <input type="hidden" name="student_id" id="offline_student_id" value="">
+                    <input type="hidden" name="followup_date" value="<?= date('Y-m-d') ?>">
+                    <input type="hidden" name="day_name" value="<?= date('l') ?>">
+                    <input type="hidden" name="followup_time" value="<?= date('H:i:s') ?>">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>التاريخ والوقت</label>
+                            <input type="text" value="<?= date('Y-m-d H:i') ?>" disabled style="background: #f5f5f5;">
+                        </div>
+                    </div>
+
+                    <h4 style="margin: 1.5rem 0 1rem; color: #08462c;">حفظ القرآن</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>حفظ من</label>
+                            <input type="text" name="memorization_from" placeholder="مثال: سورة البقرة الآية 1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>حفظ إلى</label>
+                            <input type="text" name="memorization_to" placeholder="مثال: سورة البقرة الآية 10" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تقييم الحفظ (من 5)</label>
+                            <select name="memorization_rating">
+                                <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h4 style="margin: 1.5rem 0 1rem; color: #08462c;">المراجعة</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>مراجعة من</label>
+                            <input type="text" name="review_from" placeholder="اختياري">
+                        </div>
+                        <div class="form-group">
+                            <label>مراجعة إلى</label>
+                            <input type="text" name="review_to" placeholder="اختياري">
+                        </div>
+                        <div class="form-group">
+                            <label>تقييم المراجعة (من 5)</label>
+                            <select name="review_rating">
+                                <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h4 style="margin: 1.5rem 0 1rem; color: #08462c;">السلوك</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>تقييم السلوك (من 10)</label>
+                            <select name="behavior_rating">
+                                <?php for ($i = 0; $i <= 10; $i++): ?>
+                                <option value="<?= $i ?>" <?= $i == 10 ? 'selected' : '' ?>><?= $i ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 2;">
+                            <label>الملاحظات</label>
+                            <textarea name="notes" placeholder="أي ملاحظات إضافية"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">حفظ كمسودة ⏳</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Fetch all students for offline search if online
+    if (navigator.onLine) {
+        fetch('<?= getBaseUrl() ?>api/v1/students_sync.php')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) localStorage.setItem('offline_students', JSON.stringify(data.students));
+            }).catch(console.error);
+    }
+
+    // 2. Intercept Search Form
+    const searchForm = document.querySelector('.search-box form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+            if (!navigator.onLine) {
+                e.preventDefault();
+                let term = searchForm.querySelector('input[name="search"]').value.trim();
+                let students = JSON.parse(localStorage.getItem('offline_students') || '[]');
+                let matched = students.filter(s => s.full_name.includes(term) || s.student_id.includes(term));
+                
+                // Clear existing blocks
+                document.querySelectorAll('.data-table-wrapper, .followup-entry-page, .alert, .empty-state').forEach(el => el.style.display = 'none');
+                
+                let wrapper = document.querySelector('.main-content');
+                let existingTable = document.getElementById('offlineResultsTable');
+                if(existingTable) existingTable.remove();
+                
+                if (matched.length > 0) {
+                   let html = `<div id="offlineResultsTable" class="data-table-wrapper" style="margin-top: 1rem;"><table class="data-table"><thead><tr><th>اسم الطالب</th><th>رقم الهوية</th><th>جوال</th><th>إجراء</th></tr></thead><tbody>`;
+                   matched.slice(0, 50).forEach(s => {
+                       html += `<tr><td>${s.full_name}</td><td>${s.student_id}</td><td>${s.guardian_phone}</td>
+                                <td class="actions-cell"><button type="button" class="btn btn-sm btn-primary" onclick="showOfflineForm(${s.id}, '${s.full_name.replace(/'/g, "\\'")}')">ادخال متابعة</button></td></tr>`;
+                   });
+                   html += `</tbody></table></div>`;
+                   wrapper.insertAdjacentHTML('beforeend', html);
+                } else {
+                   wrapper.insertAdjacentHTML('beforeend', `<div id="offlineResultsTable" class="alert alert-warning" style="margin-top:1rem;">لم يتم العثور محلياً</div>`);
+                }
+            }
+        });
+    }
+
+    // 3. Intercept normal form
+    const normalForm = document.querySelector('.followup-form-section form:not(#offlineFollowupForm)');
+    if (normalForm) {
+        normalForm.addEventListener('submit', function(e) {
+            if (!navigator.onLine) {
+                e.preventDefault();
+                saveToPending(new FormData(this));
+            }
+        });
+    }
+
+    // 4. Intercept offline form
+    const offlineForm = document.getElementById('offlineFollowupForm');
+    if (offlineForm) {
+        offlineForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveToPending(new FormData(this));
+        });
+    }
+
+    function saveToPending(fd) {
+        let payload = {};
+        fd.forEach((value, key) => payload[key] = value);
+        
+        let pendingStr = localStorage.getItem('pending_followups');
+        let pending = pendingStr ? JSON.parse(pendingStr) : [];
+        pending.push(payload);
+        localStorage.setItem('pending_followups', JSON.stringify(pending));
+        
+        alert('تم حفظ المتابعة محلياً بنجاح! سيتم المزامنة التلقائية فور عودة الإنترنت.');
+        if(typeof updateOnlineStatus === 'function') updateOnlineStatus();
+        
+        window.location.href = '?'; // Reload cleanly
+    }
+
+});
+
+function showOfflineForm(studentId, studentName) {
+    let tbl = document.getElementById('offlineResultsTable');
+    if(tbl) tbl.style.display = 'none';
+    
+    document.getElementById('offlineStudentName').innerText = studentName;
+    document.getElementById('offline_student_id').value = studentId;
+    document.getElementById('offlineFormContainer').style.display = 'block';
+}
+</script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

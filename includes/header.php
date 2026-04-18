@@ -14,6 +14,7 @@ $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($page_title) ?> - دار صفوة</title>
+    <link rel="manifest" href="<?= getBaseUrl() ?>manifest.json">
     <link rel="shortcut icon" href="<?= getBaseUrl() ?>assets/images/logo.jpg" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,4 +51,69 @@ $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
             <div class="topbar">
                 <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="فتح القائمة">☰</button>
                 <div class="topbar-title">أكاديمية دار الصفوة</div>
+                <div id="syncIndicator" title="يوجد بيانات محفوظة محلياً بانتظار الاتصال بالنت" onclick="attemptSync()" style="display: none; background: #e67e22; color: white; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin-right: auto; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                    أوفلاين 📡
+                </div>
             </div>
+
+            <script>
+                if ('serviceWorker' in navigator) {
+                    window.addEventListener('load', () => {
+                        navigator.serviceWorker.register('<?= getBaseUrl() ?>sw.js')
+                            .then(reg => console.log('SW registered:', reg))
+                            .catch(err => console.log('SW registration failed:', err));
+                    });
+                }
+
+                // تحديث حالة الاتصال
+                function updateOnlineStatus() {
+                    let pendingStr = localStorage.getItem('pending_followups');
+                    let pending = pendingStr ? JSON.parse(pendingStr) : [];
+                    let ind = document.getElementById('syncIndicator');
+                    
+                    if (!navigator.onLine) {
+                        ind.style.display = 'block';
+                        ind.style.background = '#e67e22';
+                        ind.innerHTML = pending.length > 0 ? `أوفلاين - ${pending.length} للرفع ⏳` : 'وضع الأوفلاين 📡';
+                    } else {
+                        if (pending.length > 0) {
+                            ind.style.display = 'block';
+                            ind.style.background = '#3498db';
+                            ind.innerHTML = 'جاري المزامنة... 🔄';
+                            attemptSync();
+                        } else {
+                            ind.style.display = 'none';
+                        }
+                    }
+                }
+
+                async function attemptSync() {
+                    if (!navigator.onLine) return;
+                    let pendingStr = localStorage.getItem('pending_followups');
+                    let pending = pendingStr ? JSON.parse(pendingStr) : [];
+                    if (pending.length === 0) return;
+
+                    try {
+                        let response = await fetch('<?= getBaseUrl() ?>api/v1/sync_offline.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(pending)
+                        });
+                        let result = await response.json();
+                        if (result.success) {
+                            localStorage.removeItem('pending_followups');
+                            updateOnlineStatus();
+                            alert('تم مزامنة ' + result.synced_count + ' متابعة بنجاح!');
+                            if(window.location.pathname.includes('daily-followup.php')) {
+                                window.location.reload();
+                            }
+                        }
+                    } catch(e) {
+                        console.error('Sync failed:', e);
+                    }
+                }
+
+                window.addEventListener('online', updateOnlineStatus);
+                window.addEventListener('offline', updateOnlineStatus);
+                setInterval(updateOnlineStatus, 5000); // تحديث دوري
+            </script>

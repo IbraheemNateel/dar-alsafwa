@@ -14,7 +14,7 @@ if (isLoggedIn()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $login_type = $_POST['login_type'] ?? 'admin';
+    $login_type = $_POST['login_type'] ?? 'student';
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
@@ -105,18 +105,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="login_type">نوع الدخول</label>
                         <select id="login_type" name="login_type" onchange="toggleLabels()">
+                            <option value="student" selected>دخول الطالب</option>
                             <option value="admin">دخول المحفظ</option>
-                            <option value="student">دخول الطالب</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="username" id="username_label">اسم المستخدم</label>
-                        <input type="text" id="username" name="username" placeholder="أدخل اسم المستخدم" required 
+                        <label for="username" id="username_label">رقم الهوية</label>
+                        <input type="text" id="username" name="username" placeholder="أدخل رقم الهوية" required 
                                value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" autocomplete="username">
                     </div>
                     <div class="form-group">
-                        <label for="password" id="password_label">كلمة المرور</label>
-                        <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required autocomplete="current-password">
+                        <label for="password" id="password_label">رقم ولي الأمر</label>
+                        <input type="password" id="password" name="password" placeholder="أدخل رقم ولي الأمر" required autocomplete="current-password">
                     </div>
                     <button type="submit" class="login-btn">تسجيل الدخول</button>
                 </form>

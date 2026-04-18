@@ -19,6 +19,7 @@ $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($page_title) ?> - دار صفوة</title>
+    <link rel="manifest" href="<?= getBaseUrl() ?>manifest.json">
     <link rel="shortcut icon" href="<?= getBaseUrl() ?>assets/images/logo.jpg" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,8 +38,61 @@ $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
                     </div>
                 </div>
                 <div class="student-info" style="background: rgba(255,255,255,0.05); padding: 0.5rem 0.5rem 0.5rem 1.25rem; border-radius: 50px; display: flex; gap: 1.25rem; align-items: center; flex-shrink: 0; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                    <span id="syncIndicator" title="وضع الأوفلاين" style="display: none; background: #e67e22; color: #fff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 2px 4px rgba(0,0,0,0.3);">אوفلاين 📡</span>
                     <span style="font-size: 1rem; font-weight: 600; color: #f8fafc;">مرحباً بك، <strong style="color: #60a5fa; text-shadow: 0 1px 2px rgba(0,0,0,0.2);"><?= htmlspecialchars(explode(' ', $_SESSION['full_name'])[0]) ?></strong> 👋</span>
                     <a href="<?= getBaseUrl() ?>logout.php" class="logout-link" style="background: linear-gradient(to bottom, #ef4444, #dc2626); color: white; padding: 0.5rem 1.25rem; border-radius: 25px; font-size: 0.9rem; font-weight: 800; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); text-decoration: none; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.5rem;">خروج <span style="font-size: 1.1rem;">🚪</span></a>
                 </div>
             </div>
         </header>
+
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('<?= getBaseUrl() ?>sw.js')
+                        .catch(err => console.log('SW registration failed:', err));
+                });
+            }
+
+            function updateStudentOnlineStatus() {
+                let pendingStr = localStorage.getItem('pending_reads');
+                let pending = pendingStr ? JSON.parse(pendingStr) : [];
+                let ind = document.getElementById('syncIndicator');
+                
+                if (!navigator.onLine) {
+                    ind.style.display = 'inline-block';
+                    ind.style.background = '#e67e22';
+                    ind.innerHTML = pending.length > 0 ? `أوفلاين (${pending.length} ⏳)` : 'أوفلاين 📡';
+                } else {
+                    if (pending.length > 0) {
+                        ind.style.display = 'inline-block';
+                        ind.style.background = '#3498db';
+                        ind.innerHTML = 'مزامنة... 🔄';
+                        attemptStudentSync();
+                    } else {
+                        ind.style.display = 'none';
+                    }
+                }
+            }
+
+            async function attemptStudentSync() {
+                if (!navigator.onLine) return;
+                let pendingStr = localStorage.getItem('pending_reads');
+                let pending = pendingStr ? JSON.parse(pendingStr) : [];
+                if (pending.length === 0) return;
+
+                // Sync each read status
+                for (let i = 0; i < pending.length; i++) {
+                    try {
+                        let formData = new FormData();
+                        await fetch('<?= getBaseUrl() ?>student/mark-read.php?id=' + pending[i], { method: 'POST', body: formData });
+                    } catch(e) {}
+                }
+                
+                localStorage.removeItem('pending_reads');
+                updateStudentOnlineStatus();
+            }
+
+            window.addEventListener('online', updateStudentOnlineStatus);
+            window.addEventListener('offline', updateStudentOnlineStatus);
+            setInterval(updateStudentOnlineStatus, 5000);
+        </script>

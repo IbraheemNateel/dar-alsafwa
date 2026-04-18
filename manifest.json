@@ -1,0 +1,21 @@
+{
+  "name": "دار الصفوة - المتابعة اليومية",
+  "short_name": "دار الصفوة",
+  "description": "نظام متابعة التحفيظ بدون اتصال إنترنت للمحفظين",
+  "start_url": "./dashboard/index.php",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2c3e50",
+  "icons": [
+    {
+      "src": "./assets/images/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "./assets/images/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

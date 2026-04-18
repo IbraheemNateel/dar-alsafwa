@@ -107,6 +107,9 @@ $rankStmt = $pdo->prepare("
 $rankStmt->execute([$monthStart, $monthEnd, $student_id, $monthStart, $monthEnd]);
 $rank = $rankStmt->fetch()['rank'];
 
+$totalStudentsStmt = $pdo->query("SELECT COUNT(*) as total FROM students");
+$totalStudentsCount = $totalStudentsStmt->fetch()['total'];
+
 ?>
 
 <style>
@@ -280,6 +283,19 @@ $rank = $rankStmt->fetch()['rank'];
             max-width: 100% !important;
         }
         .notif-date { white-space: nowrap !important; }
+        
+        .absent-days-container {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 0.5rem !important;
+            width: 100% !important;
+        }
+        .absent-days-container > div {
+            text-align: center !important;
+            padding: 0.6rem 0.25rem !important;
+            box-sizing: border-box !important;
+            font-size: 0.9rem !important;
+        }
     }
     .dashboard-main-col { order: 2; display: flex; flex-direction: column; gap: 2rem; }
     .dashboard-side-col { order: 1; display: flex; flex-direction: column; gap: 2rem; }
@@ -323,7 +339,7 @@ $rank = $rankStmt->fetch()['rank'];
                 <div class="stat-icon" style="background: linear-gradient(135deg, #f1c40f, #f39c12); box-shadow: 0 4px 10px rgba(241, 196, 15, 0.3);">🏆</div>
                 <div class="stat-content">
                     <h3 style="color: #7f8c8d; font-size: 1rem; font-weight: 600; margin-bottom: 0.2rem;">ترتيب الطالب لهذا الشهر  </h3>
-                    <p class="stat-number">#<?= $rank ?></p>
+                    <p class="stat-number"><?= $rank ?> <span style="font-size: 1.25rem; color: #a0aec0; font-weight: normal;">/ <?= $totalStudentsCount ?></span></p>
                 </div>
             </div>
             <div class="stat-card" style="box-shadow: 0 4px 15px rgba(0,0,0,0.03); background: white;">
@@ -462,7 +478,7 @@ $rank = $rankStmt->fetch()['rank'];
                 <?php if (!empty($absentDays)): ?>
                 <section class="content-section" style="border: 1px solid #fed7d7; box-shadow: 0 4px 20px rgba(229, 62, 62, 0.08); background: #fff; border-radius: 12px; padding: 1.5rem;">
                     <h2 style="color: #c53030; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem;"><span style="font-size: 1.25rem;">⚠️</span> التغيب عن الدوام</h2>
-                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <div class="absent-days-container" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                         <?php foreach ($absentDays as $day): ?>
                             <div style="background: #fff5f5; border: 1px solid #feb2b2; color: #c53030; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.05); font-size: 0.95rem;">
                                 <?= date('Y / m / d', strtotime($day)) ?>
@@ -493,10 +509,10 @@ $rank = $rankStmt->fetch()['rank'];
                         </div>
                     <?php else: ?>
                         <div class="notifications-list" style="max-height: 500px; overflow-y: auto; padding: 1rem; background: #fafbfc;">
-                            <?php foreach ($notifications as $notif): ?>
-                                <div class="notification-item <?= $notif['read_at'] ? 'read' : 'unread' ?>" 
+                            <?php foreach ($notifications as $index => $notif): ?>
+                                <div class="notification-item <?= $notif['read_at'] ? 'read' : 'unread' ?> <?= $index >= 5 ? 'hidden-notif' : '' ?>" 
                                      onclick="openNotification(<?= $notif['id'] ?>, this)"
-                                     style="border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; background: <?= $notif['read_at'] ? '#ffffff' : '#ebf8ff' ?>; border: 1px solid <?= $notif['read_at'] ? '#edf2f7' : '#90cdf4' ?>; cursor: pointer; position: relative; overflow: hidden; box-shadow: <?= $notif['read_at'] ? '0 1px 2px rgba(0,0,0,0.02)' : '0 2px 8px rgba(66, 153, 225, 0.15)' ?>; transition: all 0.2s;">
+                                     style="<?= $index >= 5 ? 'display: none; ' : '' ?>border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; background: <?= $notif['read_at'] ? '#ffffff' : '#ebf8ff' ?>; border: 1px solid <?= $notif['read_at'] ? '#edf2f7' : '#90cdf4' ?>; cursor: pointer; position: relative; overflow: hidden; box-shadow: <?= $notif['read_at'] ? '0 1px 2px rgba(0,0,0,0.02)' : '0 2px 8px rgba(66, 153, 225, 0.15)' ?>; transition: all 0.2s;">
                                     <?php if (!$notif['read_at']): ?>
                                         <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background: #3182ce;"></div>
                                     <?php endif; ?>
@@ -524,6 +540,11 @@ $rank = $rankStmt->fetch()['rank'];
                                     </div>
                                 </div>
                             <?php endforeach; ?>
+                            <?php if (count($notifications) > 5): ?>
+                                <div id="viewAllNotifsContainer" style="text-align: center; margin-top: 1rem;">
+                                    <button onclick="document.querySelectorAll('.hidden-notif').forEach(el => el.style.display='block'); this.parentElement.style.display='none';" class="btn btn-primary" style="padding: 0.5rem 1.5rem; border-radius: 8px; border: none; background: #e2e8f0; color: #4a5568; cursor: pointer; font-weight: 600; font-size: 0.9rem; width: 100%; transition: background 0.2s;">عرض الكل / المزيد 👇</button>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </section>
@@ -609,69 +630,85 @@ function closeNotificationModal() {
 function markAsRead(notificationId, element) {
     if (element.classList.contains('read')) return;
 
+    if (!navigator.onLine) {
+        // Save to offline queue
+        let pendingStr = localStorage.getItem('pending_reads');
+        let pending = pendingStr ? JSON.parse(pendingStr) : [];
+        if (!pending.includes(notificationId)) {
+            pending.push(notificationId);
+            localStorage.setItem('pending_reads', JSON.stringify(pending));
+        }
+        
+        applyVisualReadState(element);
+        if(typeof updateStudentOnlineStatus === 'function') updateStudentOnlineStatus();
+        return;
+    }
+
     fetch('mark-read.php?id=' + notificationId, { method: 'POST' })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Remove visual unread indicators
-                element.classList.remove('unread');
-                element.classList.add('read');
-                element.style.background = '#ffffff';
-                element.style.borderColor = '#edf2f7';
-                element.style.boxShadow = '0 1px 2px rgba(0,0,0,0.02)';
-                
-                // Hide side colored bar
-                let bar = element.querySelector('div[style*="position: absolute"]');
-                if (bar) bar.style.display = 'none';
-                
-                // Grayscale the icon
-                let iconWrapper = element.querySelector('.notif-icon-wrapper');
-                if (iconWrapper) {
-                    iconWrapper.style.filter = 'grayscale(100%) opacity(70%)';
-                }
-
-                // Unbold title and change color
-                let title = element.querySelector('.notif-title');
-                if(title) {
-                    title.style.color = '#4a5568';
-                    title.style.fontWeight = '600';
-                }
-
-                // Update badge if exists
-                const badge = document.querySelector('.notif-badge');
-                let currentCount = 0;
-                if (badge) {
-                    let countMatch = badge.textContent.match(/\d+/);
-                    if (countMatch) {
-                        currentCount = parseInt(countMatch[0]);
-                        if (currentCount > 1) {
-                            badge.textContent = (currentCount - 1) + ' غير مقروء';
-                        } else {
-                            badge.style.display = 'none';
-                        }
-                    }
-                }
-
-                // Update top alert box if exists
-                const alertBox = document.querySelector('.unread-alert');
-                if (alertBox) {
-                    const alertTitle = alertBox.querySelector('h3');
-                    if (alertTitle) {
-                        // If we didn't get the count from the badge, try from the title
-                        if (currentCount === 0) {
-                            let countMatch = alertTitle.textContent.match(/\d+/);
-                            if (countMatch) currentCount = parseInt(countMatch[0]);
-                        }
-                        
-                        if (currentCount > 1) {
-                            alertTitle.textContent = `يوجد لديك ${currentCount - 1} إشعار هام لم تقرأه بعد!`;
-                        } else {
-                            alertBox.style.display = 'none';
-                        }
-                    }
-                }
+                applyVisualReadState(element);
             }
         });
+}
+
+function applyVisualReadState(element) {
+    // Remove visual unread indicators
+    element.classList.remove('unread');
+    element.classList.add('read');
+    element.style.background = '#ffffff';
+    element.style.borderColor = '#edf2f7';
+    element.style.boxShadow = '0 1px 2px rgba(0,0,0,0.02)';
+    
+    // Hide side colored bar
+    let bar = element.querySelector('div[style*="position: absolute"]');
+    if (bar) bar.style.display = 'none';
+    
+    // Grayscale the icon
+    let iconWrapper = element.querySelector('.notif-icon-wrapper');
+    if (iconWrapper) {
+        iconWrapper.style.filter = 'grayscale(100%) opacity(70%)';
+    }
+
+    // Unbold title and change color
+    let title = element.querySelector('.notif-title');
+    if(title) {
+        title.style.color = '#4a5568';
+        title.style.fontWeight = '600';
+    }
+
+    // Update badge if exists
+    const badge = document.querySelector('.notif-badge');
+    let currentCount = 0;
+    if (badge) {
+        let countMatch = badge.textContent.match(/\d+/);
+        if (countMatch) {
+            currentCount = parseInt(countMatch[0]);
+            if (currentCount > 1) {
+                badge.textContent = (currentCount - 1) + ' غير مقروء';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
+
+    // Update top alert box if exists
+    const alertBox = document.querySelector('.unread-alert');
+    if (alertBox) {
+        const alertTitle = alertBox.querySelector('h3');
+        if (alertTitle) {
+            if (currentCount === 0) {
+                let countMatch = alertTitle.textContent.match(/\d+/);
+                if (countMatch) currentCount = parseInt(countMatch[0]);
+            }
+            if (currentCount > 1) {
+                alertTitle.textContent = `يوجد لديك ${currentCount - 1} إشعار هام لم تقرأه بعد!`;
+            } else {
+                alertBox.style.display = 'none';
+            }
+        }
+    }
 }
 </script>
 

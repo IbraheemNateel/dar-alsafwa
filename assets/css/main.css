@@ -691,6 +691,12 @@ body.sidebar-open .sidebar-overlay {
   }
 }
 
+img.sidebar-logo, img.student-logo, img.portal-logo {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Animations */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -1395,4 +1401,145 @@ body.sidebar-open .sidebar-overlay {
     flex-wrap: wrap !important;
   }
   .student-info { margin: 0 auto; justify-content: center !important; }
+}
+img { image-rendering: -webkit-optimize-contrast; image-rendering: high-quality; object-fit: contain; }
+/* ==============================================================
+   ?? PREMIUM ANIMATIONS SYSTEM
+   ============================================================== */
+
+@keyframes fadeInUpDeep {
+    0% { opacity: 0; transform: translateY(40px) scale(0.98); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes slideInRightSmooth {
+    0% { opacity: 0; transform: translateX(50px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes floatIcon {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(52, 152, 219, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
+}
+
+@keyframes shimmerEffect {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+/* ==============================================================
+   🚀 SCROLL REVEAL & INTERSECTION OBSERVER ANIMATIONS
+   ============================================================== */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(40px) scale(0.98);
+    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.reveal-stagger {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.reveal-stagger.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.reveal-pop {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.reveal-pop.is-visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Base Page Load Animations */
+.sidebar {
+    animation: slideInRightSmooth 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Card Hover Enhancements */
+.stat-card, .info-card, .action-card, .content-section, .notification-item {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+}
+
+.stat-card:hover, .info-card:hover, .action-card:hover, .notification-item:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12) !important;
+    z-index: 10;
+}
+
+/* Floating Icons */
+.stat-icon, .action-icon {
+    animation: floatIcon 3s ease-in-out infinite;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon, .action-card:hover .action-icon {
+    transform: scale(1.15) rotate(5deg);
+}
+
+/* Button Upgrades */
+.btn {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:active {
+    transform: scale(0.92) !important;
+}
+
+.btn-primary:hover, .btn-export:hover {
+    animation: pulseGlow 1.5s infinite;
+}
+
+/* Table Hover effect */
+.data-table tbody tr, .dashboard-table tbody tr {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s;
+}
+
+.data-table tbody tr:hover, .dashboard-table tbody tr:hover {
+    background-color: #f1f5f9 !important;
+    transform: translateX(-8px);
+    box-shadow: inset 4px 0 0 #3498db;
+}
+
+/* Sidebar Links */
+.sidebar-nav a {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.sidebar-nav a:hover {
+    padding-right: 1.5rem !important;
+    background: rgba(255,255,255,0.15) !important;
+}
+
+/* Shimmer Loading for headers */
+.page-header {
+    position: relative;
+    overflow: hidden;
+}
+.page-header::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmerEffect 4s infinite linear;
 }
